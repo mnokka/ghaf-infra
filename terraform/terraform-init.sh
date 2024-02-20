@@ -36,8 +36,8 @@ init_state_storage () {
     echo "[+] Initializing state storage"
     # See: ./state-storage 
     pushd "$MYDIR/state-storage" >/dev/null
-    terraform init >/dev/null
-    if ! terraform apply -auto-approve &>/dev/null; then
+    tofu init >/dev/null
+    if ! tofu apply -auto-approve &>/dev/null; then
         echo "[+] State storage is already initialized"
     fi
     popd >/dev/null
@@ -47,13 +47,13 @@ import_bincache_sigkey () {
     env="$1"
     echo "[+] Importing binary cache signing key '$env'"
     # Skip import if signing key is imported already
-    if terraform state list | grep -q secret_resource.binary_cache_signing_key_"$env"; then
+    if tofu state list | grep -q secret_resource.binary_cache_signing_key_"$env"; then
         echo "[+] Binary cache signing key is already imported"
         return
     fi
     # Generate and import the key
     nix-store --generate-binary-cache-key "ghaf-infra-$env" sigkey-secret.tmp "sigkey-public-$env.tmp"
-    terraform import secret_resource.binary_cache_signing_key_"$env" "$(< ./sigkey-secret.tmp)"
+    tofu import secret_resource.binary_cache_signing_key_"$env" "$(< ./sigkey-secret.tmp)"
     rm -f sigkey-secret.tmp
 }
 
@@ -61,13 +61,13 @@ init_persistent () {
     echo "[+] Initializing persistent"
     # See: ./persistent
     pushd "$MYDIR/persistent" >/dev/null
-    terraform init > /dev/null
+    tofu init > /dev/null
     # Default persistent instance: 'eun' (northeurope)
-    terraform workspace select eun &>/dev/null || terraform workspace new eun
+    tofu workspace select eun &>/dev/null || tofu workspace new eun
     import_bincache_sigkey "prod"
     import_bincache_sigkey "dev"
     echo "[+] Applying possible changes"
-    terraform apply -auto-approve >/dev/null
+    tofu apply -auto-approve >/dev/null
     popd >/dev/null
     
     # Assigns $WORKSPACE variable
@@ -78,18 +78,18 @@ init_persistent () {
     echo "[+] Initializing workspace-specific persistent"
     # See: ./persistent/workspace-specific
     pushd "$MYDIR/persistent/workspace-specific" >/dev/null
-    terraform init > /dev/null
+    tofu init > /dev/null
     echo "[+] Applying possible changes"
     for ws in "dev" "prod" "$WORKSPACE"; do
-        terraform workspace select "$ws" &>/dev/null || terraform workspace new "$ws"
-        terraform apply -auto-approve >/dev/null
+        tofu workspace select "$ws" &>/dev/null || tofu workspace new "$ws"
+        tofu apply -auto-approve >/dev/null
     done
     popd >/dev/null
 }
 
 init_terraform () {
     echo "[+] Running terraform init"
-    terraform -chdir="$MYDIR" init >/dev/null
+    tofu -chdir="$MYDIR" init >/dev/null
 }
 
 ################################################################################

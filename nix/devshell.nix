@@ -20,16 +20,17 @@
         reuse
         sops
         ssh-to-age
-        (terraform.withPlugins (p: [
-          p.azurerm
-          p.external
-          p.local
-          p.null
-          p.random
-          p.secret
-          p.sops
-          p.tls
-        ]))
+        opentofu
+#        (terraform.withPlugins (p: [
+#          p.azurerm
+#          p.external
+#          p.local
+#          p.null
+#          p.random
+#          p.secret
+#          p.sops
+#         p.tls
+#        ]))
       ];
     };
   };

@@ -14,7 +14,7 @@
         # required to use terraform
         allowUnfreePredicate = pkg:
           builtins.elem (lib.getName pkg) [
-            "terraform"
+            "opentofu"
           ];
       };
     };

@@ -107,7 +107,7 @@ main () {
     fi
 
     exit_unless_command_exists az
-    exit_unless_command_exists terraform
+    exit_unless_command_exists tofu
     exit_unless_command_exists nix-store
     exit_unless_command_exists jq
     exit_unless_command_exists sed
